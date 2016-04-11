@@ -12,6 +12,7 @@ public class MenuSystem : MonoBehaviour {
 	public GameObject	titleCamera,
 						gameplayCamera;
 	public GameController gameController;
+	public SoundController soundController;
 	public float		menuTransitionDuration,
 						fadeToGameplayDuration;
 
@@ -42,5 +43,6 @@ public class MenuSystem : MonoBehaviour {
 		titleBackgroundScene.gameObject.SetActive(false);
 		titleCamera.SetActive(false);
 		gameplayCamera.SetActive(true);
+		soundController.playTrack(1);
 	}
 }
