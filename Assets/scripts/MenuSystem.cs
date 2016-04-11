@@ -28,18 +28,18 @@ public class MenuSystem : MonoBehaviour {
 		titleBackdrop.fadeTo(0, menuTransitionDuration);
 		StartCoroutine(title.moveTo(Camera.main.ViewportToScreenPoint(new Vector3(-1f, 0.5f, 0)), menuTransitionDuration));
 		StartCoroutine(mainMenu.moveTo(Camera.main.ViewportToScreenPoint(new Vector3(2f, 0.5f, 0)), menuTransitionDuration));
-		StartCoroutine(titleBackgroundScene.moveTo(new Vector3(0, -100, 0), fadeToGameplayDuration));
+		StartCoroutine(titleBackgroundScene.moveTo(new Vector3(0, -30, 0), fadeToGameplayDuration));
 		StartCoroutine(instantiatePlayableArea(fadeToGameplayDuration));
 	}
 
 	IEnumerator instantiatePlayableArea(float secondsToWait) {
-		
+
+		gameController.expand();
 		StartCoroutine(gameplayArea.moveTo(new Vector3(0, 0, 0), secondsToWait));
 		
 		yield return new WaitForSeconds(secondsToWait);
 
 		titleBackgroundScene.gameObject.SetActive(false);
-		gameController.expand();
 		titleCamera.SetActive(false);
 		gameplayCamera.SetActive(true);
 	}
