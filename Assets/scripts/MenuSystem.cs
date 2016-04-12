@@ -37,7 +37,6 @@ public class MenuSystem : MonoBehaviour {
 
 		gameController.expand();
 		StartCoroutine(gameplayArea.moveTo(new Vector3(0, 0, 0), secondsToWait));
-		//StartCoroutine(gameController.setSunlight(1f, secondsToWait));
 		
 		yield return new WaitForSeconds(secondsToWait);
 
