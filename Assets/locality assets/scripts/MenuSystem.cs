@@ -36,10 +36,11 @@ public class MenuSystem : MonoBehaviour {
 	IEnumerator instantiatePlayableArea(float secondsToWait) {
 
 		gameController.expand();
-		StartCoroutine(gameplayArea.moveTo(new Vector3(0, 0, 0), secondsToWait));
+		StartCoroutine(gameplayArea.moveTo(new Vector3(0, 0, 0), secondsToWait / 2)); // why is this SO SLOW?
 		
 		yield return new WaitForSeconds(secondsToWait);
 
+		StartCoroutine(gameController.setSunlight(1f, secondsToWait));
 		titleBackgroundScene.gameObject.SetActive(false);
 		titleCamera.SetActive(false);
 		gameplayCamera.SetActive(true);
