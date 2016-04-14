@@ -12,14 +12,8 @@ public class GameController : MonoBehaviour {
 	}
 
 	public IEnumerator setSunlight(float value, float duration) {
-		
-		float timer = duration;
-
-		while(timer > 0) {
-			
-			timer -= Time.deltaTime;
-			sunlight.intensity = Mathf.Lerp(sunlight.intensity, value, duration);
-
+		while(Mathf.Abs(sunlight.intensity - value) > .01f) {
+			sunlight.intensity = Mathf.Lerp(sunlight.intensity, value, Time.deltaTime / duration);
 			yield return new WaitForEndOfFrame();
 		}
 	}
