@@ -9,30 +9,45 @@ public class TileController : MonoBehaviour {
 
 	MeshRenderer		r;
 	Material			defaultMaterial;
+	bool				selected;
 
 	void Start() {
-		
+
+		// find and save default material
 		r = GetComponent<MeshRenderer>();
 		defaultMaterial = r.material;
 
-		foreach(GameObject o in highlights) {
-			o.SetActive(false);
+		// disable highlight effect
+		foreach(GameObject o in highlights) o.SetActive(false);
+	}
+
+	// change material according to hover state
+	void OnMouseOver() { r.material = hoverMaterial; }
+	void OnMouseExit() { r.material = defaultMaterial; }
+
+	public void setSelected(bool state) {
+		
+		// change selected state
+		selected = state;
+
+		// toggle highlight effects
+		foreach(GameObject o in highlights) o.SetActive(selected);
+
+		if(selected) {
+
+			// de-select all other tiles
+			foreach(TileController o in transform.parent.GetComponentsInChildren<TileController>()) {
+				if(o != this) {
+					o.setSelected(false);
+				}
+			}
 		}
-	}
-
-	void OnMouseOver() {
-		r.material = hoverMaterial;
-	}
-
-	void OnMouseExit() {
-		r.material = defaultMaterial;
 	}
 
 	void OnMouseDown() {
 
-		foreach(GameObject o in highlights) {
-			o.SetActive(!o.activeSelf);
-		}
+		// toggle selected status
+		setSelected(!selected);
 
 		/*
 		GameObject temp = (GameObject)GameObject.Instantiate(buildings[(int)(Random.value * buildings.Length)], transform.position + new Vector3(-.5f, .05f, -.5f), Quaternion.identity);
