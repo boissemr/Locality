@@ -5,13 +5,15 @@ public class GameController : MonoBehaviour {
 
 	public GameObject	tilePrefab;
 	public Light		sunlight;
-	public int			population;
 	public float		tileSeparation;
+	public MenuSystem	menuSystem;
 
 	int					populationForNextExpansion,
-						expansionLevel;
+						expansionLevel,
+						population;
 
 	void Start() {
+		population = 0;
 		populationForNextExpansion = 0;
 		expansionLevel = 0;
 	}
@@ -34,6 +36,9 @@ public class GameController : MonoBehaviour {
 		if(population >= populationForNextExpansion) {
 			expand();
 		}
+
+		// update UI
+		menuSystem.updatePopulationIndicator(population, populationForNextExpansion);
 	}
 
 	public void expand() {
@@ -41,10 +46,8 @@ public class GameController : MonoBehaviour {
 		// increment expansion level
 		expansionLevel++;
 
-		// log
-		Debug.Log("EXPANSION: level " + expansionLevel + ", population " + population);
-
 		// first tile
+		// it's a little different because we don't need to iterate over 4 sides
 		if(expansionLevel == 1) {
 			GameObject child = (GameObject)Instantiate(tilePrefab, transform.position, Quaternion.identity);
 			child.transform.parent = transform;

@@ -4,8 +4,8 @@ using System.Collections;
 public class TileController : MonoBehaviour {
 
 	public Material		hoverMaterial;
-	public GameObject[]	highlights,
-						buildings;
+	public GameObject[]	buildings;
+	public GameObject	displayWhileSelected;
 
 	MeshRenderer		r;
 	Material			defaultMaterial;
@@ -17,8 +17,8 @@ public class TileController : MonoBehaviour {
 		r = GetComponent<MeshRenderer>();
 		defaultMaterial = r.material;
 
-		// disable highlight effect
-		foreach(GameObject o in highlights) o.SetActive(false);
+		// disable highlights and canvas
+		displayWhileSelected.SetActive(false);
 	}
 
 	// change material according to hover state
@@ -30,8 +30,8 @@ public class TileController : MonoBehaviour {
 		// change selected state
 		selected = state;
 
-		// toggle highlight effects
-		foreach(GameObject o in highlights) o.SetActive(selected);
+		// toggle highlights and canvas
+		displayWhileSelected.SetActive(selected);
 
 		if(selected) {
 
