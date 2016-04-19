@@ -4,8 +4,10 @@ using System.Collections;
 public class TileController : MonoBehaviour {
 
 	public Material		hoverMaterial;
-	public GameObject[]	buildings;
+	public GameObject[]	buildings,
+						renderedBuildings;
 	public GameObject	displayWhileSelected;
+	public Building		myBuilding;
 
 	MeshRenderer		r;
 	Material			defaultMaterial;
@@ -25,6 +27,9 @@ public class TileController : MonoBehaviour {
 	void OnMouseOver() { r.material = hoverMaterial; }
 	void OnMouseExit() { r.material = defaultMaterial; }
 
+	// toggle selected status
+	void OnMouseDown() { setSelected(!selected); }
+
 	public void setSelected(bool state) {
 		
 		// change selected state
@@ -41,17 +46,40 @@ public class TileController : MonoBehaviour {
 					o.setSelected(false);
 				}
 			}
+
+			if(myBuilding == null) {
+
+				// show buildings to select from
+				renderedBuildings = new GameObject[buildings.Length];
+				Vector3 instantiatePosition = new Vector3(-buildings.Length / 2 + .5f, 0, buildings.Length / 2 - .5f);
+				for(int i = 0; i < buildings.Length; i++) {
+					renderedBuildings[i] = (GameObject)Instantiate(buildings[i], transform.position + instantiatePosition, Quaternion.identity);
+					renderedBuildings[i].transform.parent = transform;
+					instantiatePosition += new Vector3(1, 0, -1);
+				}
+			}
+		} else {
+
+			// hide buildings to select from
+			foreach(GameObject o in renderedBuildings) {
+				GameObject.Destroy(o);
+			}
 		}
 	}
 
-	void OnMouseDown() {
+	public void setBuilding(Building o) {
 
-		// toggle selected status
-		setSelected(!selected);
+		// set my building
+		myBuilding = o;
 
-		/*
-		GameObject temp = (GameObject)GameObject.Instantiate(buildings[(int)(Random.value * buildings.Length)], transform.position + new Vector3(-.5f, .05f, -.5f), Quaternion.identity);
-		temp.transform.parent = transform;
-		*/
+		// remove this building from renderedBuildings so that it does not get deleted
+		for(int i = 0; i < buildings.Length; i++) {
+			if(renderedBuildings[i].name.CompareTo(myBuilding.name) == 0) {
+				renderedBuildings[i] = null;
+			}
+		}
+
+		// deselect this tile
+		setSelected(false);
 	}
 }
