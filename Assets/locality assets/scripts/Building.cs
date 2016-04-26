@@ -6,6 +6,9 @@ public class Building : MonoBehaviour {
 	public Building[]	requiredNeighbors;
 	public bool			placed;
 
+	float				highlightedHeight = 1.4f,
+						unhighlightedHeight = 1.0f,
+						placedHeight = .05f;
 	bool				highlighted;
 	Transform			model;
 	TileController		tile;
@@ -19,16 +22,17 @@ public class Building : MonoBehaviour {
 	void Update() {
 		if(!placed) {
 			if(highlighted) {
-				model.position = Vector3.Lerp(model.position, new Vector3(model.position.x, 1.2f, model.position.z), Time.deltaTime * 10);
+				model.position = Vector3.Lerp(model.position, new Vector3(model.position.x, highlightedHeight, model.position.z), Time.deltaTime * 10);
+				model.Rotate(0, Time.deltaTime * 90, 0);
 			} else {
-				model.position = Vector3.Lerp(model.position, new Vector3(model.position.x, 1f, model.position.z), Time.deltaTime * 5);
-				// TODO: set origin points to center of models
-				//model.Rotate(0, Time.deltaTime * 15, 0);
+				model.position = Vector3.Lerp(model.position, new Vector3(model.position.x, unhighlightedHeight, model.position.z), Time.deltaTime * 5);
+				model.rotation = Quaternion.Lerp(model.rotation, Quaternion.Euler(0, 0, 0), Time.deltaTime * 5);
 			}
 		} else {
-			// TODO: handle this in some other way because it is very inefficient
-			transform.position = Vector3.Lerp(model.position, tile.transform.position, Time.deltaTime * 10);
+			// TODO: handle this in a coroutine because it is very inefficient
+			transform.position = Vector3.Lerp(model.position, tile.transform.position + Vector3.up * placedHeight, Time.deltaTime * 10);
 			model.position = transform.position;
+			model.rotation = Quaternion.Lerp(model.rotation, Quaternion.Euler(0, 0, 0), Time.deltaTime * 10);
 		}
 	}
 

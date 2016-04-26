@@ -8,10 +8,14 @@ public class TileController : MonoBehaviour {
 						renderedBuildings;
 	public GameObject	displayWhileSelected;
 	public Building		myBuilding;
+	public LayerMask	layerMaskTiles,
+						layerMaskDefault;
 
 	MeshRenderer		r;
 	Material			defaultMaterial;
 	bool				selected;
+	RaycastHit[]		neighboringTiles;
+	Building[]			neighboringBuildings;
 
 	void Start() {
 
@@ -23,12 +27,49 @@ public class TileController : MonoBehaviour {
 		displayWhileSelected.SetActive(false);
 	}
 
+	void Update() {
+		if(neighboringTiles != null) {
+			for(int i = 0; i > neighboringTiles.Length; i++) {
+				if(neighboringBuildings[i] != null)
+					Debug.DrawLine(transform.position + Vector3.up, neighboringBuildings[i].transform.position);
+			}
+		}
+	}
+
 	// change material according to hover state
 	void OnMouseOver() { r.material = hoverMaterial; }
 	void OnMouseExit() { r.material = defaultMaterial; }
 
-	// toggle selected status
-	void OnMouseDown() { setSelected(!selected); }
+	void OnMouseDown() {
+
+		// update buildings
+		updateBuildings();
+		
+		// toggle selected status
+		setSelected(!selected);
+	}
+
+	// find out which buildings can be built here
+	public void updateBuildings() {
+
+		// find neighboring tiles (exclude self)
+		gameObject.layer = 8 << layerMaskDefault;
+		neighboringTiles = Physics.SphereCastAll(transform.position, 1, Vector3.up, 1, layerMaskTiles);
+		gameObject.layer = 8 << layerMaskTiles;
+
+		//Debug.Log(neighboringTiles.Length);
+
+		// find which buildings are in neighboring tiles
+		neighboringBuildings = new Building[neighboringTiles.Length];
+		for(int i = 0; i < neighboringTiles.Length; i++) {
+			neighboringBuildings[i] = neighboringTiles[i].transform.gameObject.GetComponent<TileController>().myBuilding;
+			if(neighboringBuildings[i] != null) {
+				Debug.Log(neighboringBuildings[i].name);
+			} else {
+				Debug.Log("-");
+			}
+		}
+	}
 
 	public void setSelected(bool state) {
 		
@@ -55,7 +96,7 @@ public class TileController : MonoBehaviour {
 				for(int i = 0; i < buildings.Length; i++) {
 					renderedBuildings[i] = (GameObject)Instantiate(buildings[i], transform.position + instantiatePosition, Quaternion.identity);
 					renderedBuildings[i].transform.parent = transform;
-					instantiatePosition += new Vector3(1, 0, -1);
+					instantiatePosition += new Vector3(1, -0.1f, -1);
 				}
 			}
 		} else {
