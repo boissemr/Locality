@@ -8,6 +8,9 @@ public class GameController : MonoBehaviour {
 	public float		tileSeparation;
 	public MenuSystem	menuSystem;
 
+	[HideInInspector]
+	public bool			localityCreated;
+
 	int					populationForNextExpansion,
 						expansionLevel,
 						population;
@@ -16,6 +19,7 @@ public class GameController : MonoBehaviour {
 		population = 0;
 		populationForNextExpansion = 0;
 		expansionLevel = 0;
+		localityCreated = false;
 	}
 
 	void Update() {
