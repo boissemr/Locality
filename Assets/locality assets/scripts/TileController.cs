@@ -39,15 +39,6 @@ public class TileController : MonoBehaviour {
 		}
 	}
 
-	void Update() {
-		if(neighboringTiles != null) {
-			for(int i = 0; i > neighboringTiles.Length; i++) {
-				if(neighboringBuildings[i] != null)
-					Debug.DrawLine(transform.position + Vector3.up, neighboringBuildings[i].transform.position);
-			}
-		}
-	}
-
 	// change material according to hover state
 	void OnMouseOver() { r.material = hoverMaterial; }
 	void OnMouseExit() { r.material = defaultMaterial; }
@@ -73,7 +64,7 @@ public class TileController : MonoBehaviour {
 		}
 
 		// find out which buildings can be built
-		numCanBeBuilt = 0;
+		numCanBeBuilt = (gameController.localityCreated ? -1 : 0);
 		for(int i = 0; i < buildings.Length; i++) {
 			
 			bool thisBuildingCanBeBuilt = true;
@@ -134,9 +125,11 @@ public class TileController : MonoBehaviour {
 
 				// show buildings to select from
 				renderedBuildings = new GameObject[buildings.Length];
+				Debug.Log(numCanBeBuilt);
 				Vector3 instantiatePosition = new Vector3(-numCanBeBuilt / 2 + .5f, 0, numCanBeBuilt / 2 - .5f);
 				for(int i = 0; i < buildings.Length; i++) {
 					if(canBeBuilt[i] && !(i == 0 && gameController.localityCreated)) {
+						Debug.Log(instantiatePosition);
 						renderedBuildings[i] = (GameObject)Instantiate(buildings[i], transform.position + instantiatePosition, Quaternion.identity);
 						renderedBuildings[i].transform.parent = transform;
 						instantiatePosition += new Vector3(1, -0.1f, -1);
@@ -158,6 +151,11 @@ public class TileController : MonoBehaviour {
 
 		// set my building
 		myBuilding = o;
+
+		// incremenet population if applicable
+		if(myBuilding.countsForPopulation) {
+			gameController.addPopulation(1);
+		}
 
 		// remove this building from renderedBuildings so that it does not get deleted
 		for(int i = (gameController.localityCreated ? 1 : 0); i < buildings.Length; i++) {
