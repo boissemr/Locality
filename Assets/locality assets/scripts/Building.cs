@@ -4,7 +4,8 @@ using System.Collections;
 public class Building : MonoBehaviour {
 
 	public Building[]	requiredNeighbors;
-	public bool			placed;
+	public bool			placed,
+						countsForPopulation;
 
 	float				highlightedHeight = 1.4f,
 						unhighlightedHeight = 1.0f,
