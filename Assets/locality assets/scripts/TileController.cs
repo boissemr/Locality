@@ -2,7 +2,8 @@
 using System.Collections;
 
 public class TileController : MonoBehaviour {
-	public Material		hoverMaterial;
+	public Material		hoverMaterial,
+						unsatisfiedMaterial;
 	public GameObject[]	buildings,
 						renderedBuildings;
 	public GameObject	displayWhileSelected;
@@ -10,12 +11,15 @@ public class TileController : MonoBehaviour {
 	public LayerMask	layerMaskTiles,
 						layerMaskDefault;
 
+	[HideInInspector]
+	public int			ring;
+	public bool[]		canBeBuilt;
+
 	MeshRenderer		r;
 	Material			defaultMaterial;
 	bool				selected;
 	RaycastHit[]		neighboringTiles;
 	Building[]			neighboringBuildings;
-	bool[]				canBeBuilt;
 	int					numCanBeBuilt;
 	GameController		gameController;
 
@@ -41,7 +45,14 @@ public class TileController : MonoBehaviour {
 
 	// change material according to hover state
 	void OnMouseOver() { r.material = hoverMaterial; }
-	void OnMouseExit() { r.material = defaultMaterial; }
+	void OnMouseExit() { updateMaterial(); }
+	public void updateMaterial() {
+		if(myBuilding == null) {
+			r.material = defaultMaterial;
+		} else {
+			r.material = myBuilding.satisfied ? defaultMaterial : unsatisfiedMaterial;
+		}
+	}
 
 	void OnMouseDown() {
 		
@@ -128,11 +139,12 @@ public class TileController : MonoBehaviour {
 				if(myBuilding == null) {
 
 					//TODO: fix that odd numbered sets of buildings offset??
+					float weirdOffset = (numCanBeBuilt % 2 == 0) ? .5f : 0f;
 
 					// show buildings to select from
 					renderedBuildings = new GameObject[buildings.Length];
 					//Debug.Log(numCanBeBuilt);
-					Vector3 instantiatePosition = new Vector3(-numCanBeBuilt / 2 + .5f, 0, numCanBeBuilt / 2 - .5f);
+					Vector3 instantiatePosition = new Vector3(-numCanBeBuilt / 2 + weirdOffset, 0, numCanBeBuilt / 2 - weirdOffset);
 					for(int i = 0; i < buildings.Length; i++) {
 						if(canBeBuilt[i] && !(i == 0 && gameController.localityCreated)) {
 							//Debug.Log(instantiatePosition);
@@ -175,6 +187,45 @@ public class TileController : MonoBehaviour {
 						// give building to this tile
 						myBuilding = gameController.buildingToMove;
 						myBuilding.transform.SetParent(transform);
+
+						// check for pollution
+						bool chainWasBroken = false;
+						foreach(GameObject o in GameObject.FindGameObjectsWithTag("Tile")) {
+
+							TileController tile = o.GetComponent<TileController>();
+
+							if(tile == null) {
+								Debug.Log(o.name);
+								o.name = "HELP_ME_SOMETHING_IS_VERY_VERY_WRONG";
+								break;
+							}
+
+							if(tile.myBuilding != null) {
+
+								// update buildings
+								tile.updateBuildings();
+
+								// check if chain was broken
+								int indexOfMyBuilding = 0;
+								for(int i = 0; i < buildings.Length; i++) {
+									if(buildings[i].name == tile.myBuilding.name.Substring(0, tile.myBuilding.name.Length - 7)) {
+										indexOfMyBuilding = i;
+									}
+								}
+								if(!tile.canBeBuilt[indexOfMyBuilding] && tile.myBuilding.satisfied) {
+									tile.myBuilding.satisfied = false;
+									chainWasBroken = true;
+								}
+
+								// update material
+								tile.updateMaterial();
+							}
+						}
+
+						// pollute if chain was broken
+						if(chainWasBroken) {
+							gameController.pollute();
+						}
 					}
 
 					// if it can't, gently apologize; it isn't the user's fault
@@ -232,5 +283,19 @@ public class TileController : MonoBehaviour {
 
 		// deselect this tile
 		setSelected(false);
+	}
+
+	public void fallAway() {
+		StartCoroutine("coFallAway");
+	}
+	public IEnumerator coFallAway() {
+		GetComponent<BoxCollider>().enabled = false;
+		float fallingSpeed = 0;
+		while(transform.position.y > -10) {
+			fallingSpeed += Time.deltaTime * 15;
+			transform.position += Vector3.down * fallingSpeed * Time.deltaTime;
+			yield return new WaitForEndOfFrame();
+		}
+		GameObject.Destroy(gameObject);
 	}
 }

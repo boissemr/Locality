@@ -15,21 +15,26 @@ public class GameController : MonoBehaviour {
 
 	int					populationForNextExpansion,
 						expansionLevel,
-						population;
+						population,
+						pollutionLevel;
 
 	void Start() {
 		population = 0;
 		populationForNextExpansion = 0;
 		expansionLevel = 0;
 		localityCreated = false;
+		pollutionLevel = 0;
 	}
 
 	void Update() {
 
-		// debug add population
+		// debug add population / remove rings
 		// TODO: remove this before publishing
 		if(Input.GetButtonDown("DebugAddPopulation")) {
 			addPopulation(1);
+		}
+		if(Input.GetButtonDown("DebugRemoveRing")) {
+			pollute();
 		}
 	}
 
@@ -57,6 +62,7 @@ public class GameController : MonoBehaviour {
 		if(expansionLevel == 1) {
 			GameObject child = (GameObject)Instantiate(tilePrefab, transform.position, Quaternion.identity);
 			child.transform.parent = transform;
+			child.GetComponent<TileController>().ring = expansionLevel;
 		}
 
 		// typical expansion after first
@@ -80,6 +86,7 @@ public class GameController : MonoBehaviour {
 					// instantiate a tile
 					GameObject child = (GameObject)Instantiate(tilePrefab, transform.position + direction * offset, Quaternion.identity);
 					child.transform.parent = transform;
+					child.GetComponent<TileController>().ring = expansionLevel;
 
 					// increase shift as tiles are created
 					offset += new Vector3(0, 0, 1 + tileSeparation);
@@ -90,6 +97,21 @@ public class GameController : MonoBehaviour {
 		// set population for next expansion
 		// next expansion will cost 1 more than this one did
 		populationForNextExpansion += expansionLevel;
+	}
+
+	public void pollute() {
+
+		// increment pollution level
+		pollutionLevel++;
+
+		// delete tiles
+		foreach(GameObject tile in GameObject.FindGameObjectsWithTag("Tile")) {
+			if(tile.GetComponent<TileController>().ring <= pollutionLevel) {
+				//GameObject.Destroy(tile);
+				tile.GetComponent<TileController>().fallAway();
+			}
+		}
+
 	}
 
 	public IEnumerator setSunlight(float value, float duration) {

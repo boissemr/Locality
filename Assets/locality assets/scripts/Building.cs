@@ -8,6 +8,9 @@ public class Building : MonoBehaviour {
 						countsForPopulation,
 						held;
 
+	[HideInInspector]
+	public bool			satisfied;
+
 	float				highlightedHeight = 1.4f,
 						unhighlightedHeight = 1.0f,
 						placedHeight = .05f;
@@ -19,6 +22,7 @@ public class Building : MonoBehaviour {
 		highlighted = false;
 		model = transform.GetChild(0).transform;
 		tile = GetComponentInParent<TileController>();
+		satisfied = true; // true by default because it had to be satisfied to be placed
 	}
 
 	void Update() {
