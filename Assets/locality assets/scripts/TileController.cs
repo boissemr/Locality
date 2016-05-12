@@ -114,31 +114,90 @@ public class TileController : MonoBehaviour {
 			// update buildings
 			updateBuildings();
 
-			// de-select all other tiles
-			foreach(TileController o in transform.parent.GetComponentsInChildren<TileController>()) {
-				if(o != this) {
-					o.setSelected(false);
-				}
-			}
+			// if we are not moving a building
+			if(gameController.buildingToMove == null) {
 
-			if(myBuilding == null) {
-
-				// show buildings to select from
-				renderedBuildings = new GameObject[buildings.Length];
-				Debug.Log(numCanBeBuilt);
-				Vector3 instantiatePosition = new Vector3(-numCanBeBuilt / 2 + .5f, 0, numCanBeBuilt / 2 - .5f);
-				for(int i = 0; i < buildings.Length; i++) {
-					if(canBeBuilt[i] && !(i == 0 && gameController.localityCreated)) {
-						Debug.Log(instantiatePosition);
-						renderedBuildings[i] = (GameObject)Instantiate(buildings[i], transform.position + instantiatePosition, Quaternion.identity);
-						renderedBuildings[i].transform.parent = transform;
-						instantiatePosition += new Vector3(1, -0.1f, -1);
+				// de-select all other tiles
+				foreach(TileController o in transform.parent.GetComponentsInChildren<TileController>()) {
+					if(o != this) {
+						o.setSelected(false);
 					}
 				}
+
+				// if there isn't a building here yet
+				if(myBuilding == null) {
+
+					//TODO: fix that odd numbered sets of buildings offset??
+
+					// show buildings to select from
+					renderedBuildings = new GameObject[buildings.Length];
+					//Debug.Log(numCanBeBuilt);
+					Vector3 instantiatePosition = new Vector3(-numCanBeBuilt / 2 + .5f, 0, numCanBeBuilt / 2 - .5f);
+					for(int i = 0; i < buildings.Length; i++) {
+						if(canBeBuilt[i] && !(i == 0 && gameController.localityCreated)) {
+							//Debug.Log(instantiatePosition);
+							renderedBuildings[i] = (GameObject)Instantiate(buildings[i], transform.position + instantiatePosition, Quaternion.identity);
+							renderedBuildings[i].transform.parent = transform;
+							instantiatePosition += new Vector3(1, -0.1f, -1);
+						}
+					}
+				}
+
+				// if there is a building here
+				else {
+
+					// select this building to move it
+					gameController.buildingToMove = myBuilding;
+					//gameController.buildingToMove.held = true;
+				}
 			}
 
+			// if we are moving a building
+			else {
+
+				// move building if the tile is free
+				if(myBuilding == null) {
+					
+					// check if building could be placed here
+					int indexOfBuildingToMove = 0;
+					for(int i = 0; i < buildings.Length; i++) {
+						if(buildings[i].name == gameController.buildingToMove.name.Substring(0, gameController.buildingToMove.name.Length - 7)) {
+							indexOfBuildingToMove = i;
+						}
+					}
+
+					// if it can be placed, do it!
+					if(canBeBuilt[indexOfBuildingToMove]) {
+
+						// remove building from its tile
+						gameController.buildingToMove.transform.parent.GetComponent<TileController>().myBuilding = null;
+
+						// give building to this tile
+						myBuilding = gameController.buildingToMove;
+						myBuilding.transform.SetParent(transform);
+					}
+
+					// if it can't, gently apologize; it isn't the user's fault
+					else {
+						//TODO: visually show that this isn't a valid location
+						Debug.Log("You can't put that there, dumbass!");
+					}
+				}
+
+				// deselect all tiles
+				foreach(TileController o in transform.parent.GetComponentsInChildren<TileController>()) {
+					o.setSelected(false);
+				}
+
+			}
+		}
+
 		// de-select
-		} else {
+		else {
+
+			// no building is being moved
+			//gameController.buildingToMove.held = false;
+			gameController.buildingToMove = null;
 
 			// hide buildings to select from
 			foreach(GameObject o in renderedBuildings) {

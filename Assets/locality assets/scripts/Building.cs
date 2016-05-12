@@ -5,7 +5,8 @@ public class Building : MonoBehaviour {
 
 	public Building[]	requiredNeighbors;
 	public bool			placed,
-						countsForPopulation;
+						countsForPopulation,
+						held;
 
 	float				highlightedHeight = 1.4f,
 						unhighlightedHeight = 1.0f,
@@ -21,7 +22,7 @@ public class Building : MonoBehaviour {
 	}
 
 	void Update() {
-		if(!placed) {
+		if(!placed || held) {
 			if(highlighted) {
 				model.position = Vector3.Lerp(model.position, new Vector3(model.position.x, highlightedHeight, model.position.z), Time.deltaTime * 10);
 				model.Rotate(0, Time.deltaTime * 90, 0);
@@ -31,7 +32,7 @@ public class Building : MonoBehaviour {
 			}
 		} else {
 			// TODO: handle this in a coroutine because it is very inefficient
-			transform.position = Vector3.Lerp(model.position, tile.transform.position + Vector3.up * placedHeight, Time.deltaTime * 10);
+			transform.position = Vector3.Lerp(model.position, transform.parent.transform.position + Vector3.up * placedHeight, Time.deltaTime * 10);
 			model.position = transform.position;
 			model.rotation = Quaternion.Lerp(model.rotation, Quaternion.Euler(0, 0, 0), Time.deltaTime * 10);
 		}

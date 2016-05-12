@@ -10,6 +10,8 @@ public class GameController : MonoBehaviour {
 
 	[HideInInspector]
 	public bool			localityCreated;
+	[HideInInspector]
+	public Building		buildingToMove;
 
 	int					populationForNextExpansion,
 						expansionLevel,
